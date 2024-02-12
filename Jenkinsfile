@@ -30,6 +30,11 @@ pipeline {
                     // Load the Groovy script to parse JSON
                     def jsonData = load 'parseJson.groovy'
                     
+                    // Check if jsonData is null or empty
+                    if (jsonData == null || jsonData.isEmpty()) {
+                        error "Failed to parse JSON data. Check the parseJson.groovy script and the JSON file."
+                    }
+                    
                     // Print out the parsed JSON data for debugging
                     echo "Parsed JSON Data: ${jsonData}"
                     
