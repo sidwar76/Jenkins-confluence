@@ -27,18 +27,15 @@ pipeline {
         stage('Read and Trigger Pipelines') {
             steps {
                 script {
-                    // Check if the JSON file exists
-                    def configFile = new File(env.JSON_FILE)
-                    if (!configFile.exists()) {
-                        error "JSON file '${env.JSON_FILE}' not found."
-                    }
+                    // Read JSON file contents
+                    def jsonContent = readFile(env.JSON_FILE).trim()
                     
-                    // Load the Groovy script to parse JSON
-                    def jsonData = load 'parseJson.groovy'
+                    // Parse JSON data
+                    def jsonData = parseJsonText(jsonContent)
                     
                     // Check if jsonData is null or empty
                     if (jsonData == null || jsonData.isEmpty()) {
-                        error "Failed to parse JSON data. Check the parseJson.groovy script and the JSON file."
+                        error "Failed to parse JSON data. Check the JSON file content."
                     }
                     
                     // Print out the parsed JSON data for debugging
