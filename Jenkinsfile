@@ -27,10 +27,18 @@ pipeline {
         stage('Read and Trigger Pipelines') {
             steps {
                 script {
-                    // Importing the parseJsonFile method from parseJson.groovy
+                    // Load the Groovy script to parse JSON
                     def jsonData = load 'parseJson.groovy'
                     
+                    // Print out the parsed JSON data for debugging
+                    echo "Parsed JSON Data: ${jsonData}"
+                    
+                    // Iterate over the parsed JSON data
                     jsonData.each { pipelineName, parameterValue ->
+                        // Print out each pipeline name and parameter value for debugging
+                        echo "Triggering pipeline: ${pipelineName} with parameter: ${parameterValue}"
+                        
+                        // Trigger the pipeline
                         build job: pipelineName, parameters: [string(name: 'version', value: parameterValue)]
                     }
                 }
