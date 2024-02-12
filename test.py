@@ -1,6 +1,13 @@
 import requests
-from bs4 import BeautifulSoup
 import base64
+import json
+from bs4 import BeautifulSoup
+
+# Function to read data from config.json
+def read_config(file_path):
+    with open(file_path, 'r') as file:
+        config_data = json.load(file)
+    return config_data
 
 # Replace these values with your Confluence site URL, page ID, and base64-encoded token
 confluence_url = "https://sharmasid2398.atlassian.net/wiki"
@@ -31,15 +38,49 @@ if response.status_code == 200:
         # Use BeautifulSoup to parse the HTML content
         soup = BeautifulSoup(table_content, 'html.parser')
         
-        # Find all rows in the table
-        rows = soup.find_all('tr')
+        # Find the table
+        table = soup.find('table')
 
-        # Skip the first row (header) and loop through the remaining rows to print cell data
+        # Initialize an empty dictionary to store application names and versions
+        app_dict = {}
+
+        # Find all rows in the table
+        rows = table.find_all('tr')
+
+        # Extract header row to determine column indexes
+        header_row = rows[0]
+        headers = [header.get_text(strip=True) for header in header_row.find_all(['th', 'td'])]
+
+        # Find indexes of 'application name' and 'application version' columns
+        app_name_index = headers.index('application name')
+        app_version_index = headers.index('application version')
+
+        # Loop through rows and extract application name and version
         for row in rows[1:]:
             columns = row.find_all(['th', 'td'])
-            for column in columns:
-                print(column.get_text(strip=True), end='\t')
-            print()  # Move to the next line for the next row
+            app_name = columns[app_name_index].get_text(strip=True)
+            app_version = columns[app_version_index].get_text(strip=True)
+            app_dict[app_name] = app_version
+
+        # Print the dictionary
+        print("Dictionary from HTML table:")
+        print(app_dict)
+
+        # Read data from config.json
+        config_data = read_config('config.json')
+
+        # Initialize a dictionary to store changed values
+        changed_values = {}
+
+        # Compare data from HTML table with data from config.json
+        for key, value in app_dict.items():
+            if key in config_data:
+                if config_data[key] != value:
+                    changed_values[key] = value
+
+        # Print the changed values
+        print("Changed values:")
+        print(changed_values)
 
     else:
         print("No table content found on the page.")
