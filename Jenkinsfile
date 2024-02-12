@@ -27,6 +27,12 @@ pipeline {
         stage('Read and Trigger Pipelines') {
             steps {
                 script {
+                    // Check if the JSON file exists
+                    def configFile = new File(env.JSON_FILE)
+                    if (!configFile.exists()) {
+                        error "JSON file '${env.JSON_FILE}' not found."
+                    }
+                    
                     // Load the Groovy script to parse JSON
                     def jsonData = load 'parseJson.groovy'
                     
