@@ -5,6 +5,7 @@ pipeline {
         PYTHON_INTERPRETER = '/usr/local/opt/python@3.11/bin/python3.11'
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'config.json'
+        TRIGGER_JSON_FILE = 'trigger.json'
     }
 
     stages {
@@ -28,13 +29,13 @@ pipeline {
             steps {
                 script {
                     // Read JSON file contents
-                    def jsonContent = readFile(env.JSON_FILE).trim()
+                    def jsonContent = readFile(env.TRIGGER_JSON_FILE).trim()
                     
                     // Parse JSON data
-                    def jsonData = parseJsonText(jsonContent)
+                    def jsonData = readJSON text: jsonContent
                     
                     // Check if jsonData is null or empty
-                    if (jsonData == null || jsonData.isEmpty()) {
+                    if (jsonData.isEmpty()) {
                         error "Failed to parse JSON data. Check the JSON file content."
                     }
                     
@@ -42,12 +43,12 @@ pipeline {
                     echo "Parsed JSON Data: ${jsonData}"
                     
                     // Iterate over the parsed JSON data
-                    jsonData.each { pipelineName, parameterValue ->
+                    jsonData.each { jobName, parameterValue ->
                         // Print out each pipeline name and parameter value for debugging
-                        echo "Triggering pipeline: ${pipelineName} with parameter: ${parameterValue}"
+                        echo "Triggering job: ${jobName} with parameter: ${parameterValue}"
                         
-                        // Trigger the pipeline
-                        build job: pipelineName, parameters: [string(name: 'version', value: parameterValue)]
+                        // Trigger the job
+                        build job: jobName, parameters: [string(name: 'version', value: parameterValue)]
                     }
                 }
             }
