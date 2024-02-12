@@ -1,4 +1,5 @@
 import requests
+from bs4 import BeautifulSoup
 import base64
 
 # Replace these values with your Confluence site URL, page ID, and base64-encoded token
@@ -28,15 +29,13 @@ if response.status_code == 200:
         table_content = page_info['body']['storage']['value']
 
         # Use BeautifulSoup to parse the HTML content
-        from bs4 import BeautifulSoup
-
         soup = BeautifulSoup(table_content, 'html.parser')
         
         # Find all rows in the table
         rows = soup.find_all('tr')
 
-        # Loop through rows and columns to print cell data
-        for row in rows:
+        # Skip the first row (header) and loop through the remaining rows to print cell data
+        for row in rows[1:]:
             columns = row.find_all(['th', 'td'])
             for column in columns:
                 print(column.get_text(strip=True), end='\t')
