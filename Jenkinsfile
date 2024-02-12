@@ -32,7 +32,7 @@ pipeline {
                     def jsonContent = readFile(env.TRIGGER_JSON_FILE).trim()
                     
                     // Parse JSON data
-                    def jsonData = readJSON text: jsonContent
+                    def jsonData = parseJsonText(jsonContent)
                     
                     // Check if jsonData is null or empty
                     if (jsonData.isEmpty()) {
