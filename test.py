@@ -9,6 +9,11 @@ def read_config(file_path):
         config_data = json.load(file)
     return config_data
 
+# Function to write data to trigger.json
+def write_trigger_data(data):
+    with open('trigger.json', 'w') as file:
+        json.dump(data, file)
+
 # Replace these values with your Confluence site URL, page ID, and base64-encoded token
 confluence_url = "https://sharmasid2398.atlassian.net/wiki"
 page_id = "163997"
@@ -81,6 +86,9 @@ if response.status_code == 200:
         # Print the changed values
         print("Changed values:")
         print(changed_values)
+
+        # Write changed values to trigger.json
+        write_trigger_data(changed_values)
 
     else:
         print("No table content found on the page.")
