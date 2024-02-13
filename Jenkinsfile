@@ -1,3 +1,11 @@
+import groovy.json.JsonSlurper
+
+def parseJsonFile(filePath) {
+    def jsonContent = readFile(file: filePath)
+    def slurper = new JsonSlurper()
+    return slurper.parseText(jsonContent)
+}
+
 pipeline {
     agent any
     
@@ -29,12 +37,8 @@ pipeline {
         stage('Read and Trigger Pipelines') {
             steps {
                 script {
-                    // Read JSON file from workspace
-                    def jsonContent = readFile(file: env.JSON_FILE)
-                    
-                    // Parse JSON string manually
-                    def slurper = new groovy.json.JsonSlurper()
-                    def jsonData = slurper.parseText(jsonContent)
+                    // Parse JSON file from workspace
+                    def jsonData = parseJsonFile(env.JSON_FILE)
                     
                     // Loop through each key-value pair in the JSON data
                     jsonData.each { pipelineName, parameterValue ->
