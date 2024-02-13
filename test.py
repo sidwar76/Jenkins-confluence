@@ -21,9 +21,6 @@ def write_trigger_data(data):
     with open('trigger.json', 'w') as file:
         json.dump(data, file, indent=4)
 
-# Initialize an empty dictionary to store changed values
-changed_values = {}
-
 # Replace these values with your Confluence site URL, page ID, and base64-encoded token
 confluence_url = "https://sharmasid2398.atlassian.net/wiki"
 page_id = "163997"
@@ -80,6 +77,9 @@ if response.status_code == 200:
         # Print the dictionary
         print("Dictionary from HTML table:")
         print(app_dict)
+
+        # Initialize a dictionary to store changed values
+        changed_values = {}
 
         # Read data from config.json
         config_data = read_config('config.json')
