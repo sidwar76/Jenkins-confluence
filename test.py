@@ -97,11 +97,8 @@ if response.status_code == 200:
         # Write changed values to trigger.json
         write_trigger_data(changed_values)
         
-        # Update config.json with changed values only if there are any
-        if changed_values:
-            update_config_data('config.json', changed_values)
-        else:
-            print("No changed values to update in config.json")
+        # Update config.json with changed values
+        update_config_data('config.json', changed_values)
 
     else:
         print("No table content found on the page.")
