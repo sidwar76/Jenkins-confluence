@@ -35,16 +35,16 @@ pipeline {
                     // Parse JSON string manually
                     def jsonData = readJSON text: jsonContent
                     
-                    // Initialize changed_values variable
-                    def changed_values = jsonData
-                    
                     // Loop through each key-value pair in the JSON data
                     jsonData.each { pipelineName, parameterValue ->
                         // Trigger the pipeline only if the parameter value is found in the changed values
-                        if (parameterValue in changed_values.values()) {
+                        if (parameterValue in jsonData.values()) {
                             build job: pipelineName, parameters: [string(name: 'version', value: parameterValue)]
                         }
                     }
+                    
+                    // Erase the content of the trigger.json file
+                    writeFile file: env.JSON_FILE, text: '{}'
                 }
             }
         }
