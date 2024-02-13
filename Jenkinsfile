@@ -4,7 +4,7 @@ pipeline {
     environment {
         PYTHON_INTERPRETER = '/usr/local/opt/python@3.11/bin/python3.11'
         PYTHON_SCRIPT = 'test.py'
-        JSON_FILE = 'config.json'
+        JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
     }
 
     stages {
@@ -37,8 +37,10 @@ pipeline {
                     
                     // Loop through each key-value pair in the JSON data
                     jsonData.each { pipelineName, parameterValue ->
-                        // Trigger the pipeline with the provided parameter value
-                        build job: pipelineName, parameters: [string(name: 'version', value: parameterValue)]
+                        // Trigger the pipeline only if the parameter value is found in the changed values
+                        if (parameterValue in changed_values.values()) {
+                            build job: pipelineName, parameters: [string(name: 'version', value: parameterValue)]
+                        }
                     }
                 }
             }
