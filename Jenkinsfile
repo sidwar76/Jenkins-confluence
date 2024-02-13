@@ -1,5 +1,6 @@
 import groovy.json.JsonSlurper
 
+@NonCPS
 def parseJsonFile(filePath) {
     def jsonContent = readFile(file: filePath)
     def slurper = new JsonSlurper()
@@ -50,3 +51,4 @@ pipeline {
         }
     }
 }
+
