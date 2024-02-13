@@ -33,8 +33,7 @@ pipeline {
                     def jsonContent = readFile(file: env.JSON_FILE)
                     
                     // Parse JSON string manually
-                    def slurper = new groovy.json.JsonSlurper()
-                    def jsonData = slurper.parseText(jsonContent)
+                    def jsonData = readJSON text: jsonContent
                     
                     // Loop through each key-value pair in the JSON data
                     jsonData.each { pipelineName, parameterValue ->
