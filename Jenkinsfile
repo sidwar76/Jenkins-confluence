@@ -35,6 +35,9 @@ pipeline {
                     // Parse JSON string manually
                     def jsonData = readJSON text: jsonContent
                     
+                    // Initialize changed_values variable
+                    def changed_values = jsonData
+                    
                     // Loop through each key-value pair in the JSON data
                     jsonData.each { pipelineName, parameterValue ->
                         // Trigger the pipeline only if the parameter value is found in the changed values
