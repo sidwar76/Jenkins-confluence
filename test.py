@@ -11,8 +11,6 @@ def read_config(file_path):
 
 # Function to update config.json with changed values
 def update_config_data(file_path, changed_values):
-    print("Updating config.json with the following changed values:")
-    print(changed_values)
     config_data = read_config(file_path)
     config_data.update(changed_values)
     with open(file_path, 'w') as file:
@@ -101,7 +99,6 @@ if response.status_code == 200:
         
         # Update config.json with changed values only if there are any
         if changed_values:
-            print("Updating config.json...")
             update_config_data('config.json', changed_values)
         else:
             print("No changed values to update in config.json")
