@@ -9,8 +9,10 @@ pipeline {
         PYTHON_INTERPRETER = '/usr/local/opt/python@3.11/bin/python3.11'
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
-        GIT_TOKEN = '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' // Hardcoded PAT
-        GIT_USERNAME = 'sidwar76' // Your GitHub username
+        FILE_TO_PUSH = 'config.json'  // The file you want to push
+        GIT_USERNAME = 'sidwar76'     // Your GitHub username
+        GIT_TOKEN = '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'  // Your GitHub Personal Access Token (PAT)
+        REPO_URL = "https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/sidwar76/Jenkins-confluence"  // Modify with your repository URL
     }
 
     stages {
@@ -23,11 +25,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Modify the GitHub repository URL to include the username and PAT
-                    def gitUrlWithToken = "https://${env.GIT_USERNAME}:${env.GIT_TOKEN}@github.com/sidwar76/Jenkins-confluence"
-
                     // Checkout code from Git repository
-                    git url: gitUrlWithToken, credentialsId: 'github-pat'
+                    git url: REPO_URL, credentialsId: 'github-pat'
                 }
             }
         }
@@ -36,7 +35,7 @@ pipeline {
             steps {
                 script {
                     // Execute Python script to get build data
-                    sh "${env.PYTHON_INTERPRETER} ${env.PYTHON_SCRIPT}"
+                    sh "${PYTHON_INTERPRETER} ${PYTHON_SCRIPT}"
                 }
             }
         }
@@ -45,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Read JSON file from workspace
-                    def jsonContent = readFile(file: env.JSON_FILE)
+                    def jsonContent = readFile(file: JSON_FILE)
                     
                     // Parse JSON string manually
                     def jsonData = readJSON text: jsonContent
@@ -59,7 +58,7 @@ pipeline {
                     }
                     
                     // Erase the content of the trigger.json file
-                    writeFile file: env.JSON_FILE, text: '{}'
+                    writeFile file: JSON_FILE, text: '{}'
                 }
             }
         }
@@ -67,17 +66,24 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Modify the GitHub repository URL to include the PAT
-                    def gitUrlWithToken = "https://${env.GIT_USERNAME}:${env.GIT_TOKEN}@github.com/sidwar76/Jenkins-confluence"
+                    // Configure Git with the username and email
+                    sh 'git config --global user.name "Your Name"'
+                    sh 'git config --global user.email "youremail@example.com"'
 
-                    // Set the Git remote URL to the modified URL
-                    sh "git remote set-url origin ${gitUrlWithToken}"
+                    // Initialize Git repository
+                    sh 'git init'
 
-                    // Commit and push changes to the GitHub repository
-                    gitAdd = 'git add config.json'
-                    gitCommit = 'git commit -m "Update config.json"'
-                    gitPush = 'git push origin master' // Modify 'master' to your branch name if needed
-                    sh "${gitAdd} && ${gitCommit} && ${gitPush}"
+                    // Add the file to the repository
+                    sh "git add ${FILE_TO_PUSH}"
+
+                    // Commit the changes
+                    sh 'git commit -m "Update config.json"'
+
+                    // Set the remote repository URL
+                    sh "git remote add origin ${REPO_URL}"
+
+                    // Push the changes to GitHub
+                    sh 'git push -u origin master'
                 }
             }
         }
