@@ -49,7 +49,7 @@ pipeline {
                     jsonData.each { pipelineName, parameterValue ->
                         // Trigger the pipeline only if the parameter value is found in the changed values
                         if (parameterValue in jsonData.values()) {
-                            build job: pipelineName, parameters: [string(name: 'version', value: parameterValue), string(name: 'environment', value: params.ENVIRONMENT)]
+                            build job: pipelineName, parameters: [string(name: 'version', value: parameterValue), string(name: 'env', value: params.ENVIRONMENT)]
                         }
                     }
                     
