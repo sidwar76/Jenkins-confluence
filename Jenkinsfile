@@ -9,6 +9,7 @@ pipeline {
         PYTHON_INTERPRETER = '/usr/local/opt/python@3.11/bin/python3.11'
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
+        GIT_TOKEN = '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' // Hardcoded PAT
     }
 
     stages {
@@ -22,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code from Git repository
-                    git 'https://github.com/sidwar76/Jenkins-confluence'
+                    git credentialsId: 'github-pat', url: 'https://github.com/sidwar76/Jenkins-confluence'
                 }
             }
         }
@@ -66,7 +67,7 @@ pipeline {
                     gitAdd = 'git add config.json'
                     gitCommit = 'git commit -m "Update config.json"'
                     gitPush = 'git push origin master' // Modify 'master' to your branch name if needed
-                    sh "${gitAdd} && ${gitCommit} && ${gitPush}"
+                    sh "git config --global credential.helper 'store --file ~/.git-credentials' && echo ${env.GIT_TOKEN} | git credential approve && ${gitAdd} && ${gitCommit} && ${gitPush}"
                 }
             }
         }
