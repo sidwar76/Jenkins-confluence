@@ -23,11 +23,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Modify the GitHub repository URL to include the username
-                    def gitUrlWithUsername = "https://${env.GIT_USERNAME}@github.com/sidwar76/Jenkins-confluence"
+                    // Modify the GitHub repository URL to include the username and PAT
+                    def gitUrlWithToken = "https://${env.GIT_USERNAME}:${env.GIT_TOKEN}@github.com/sidwar76/Jenkins-confluence"
 
                     // Checkout code from Git repository
-                    git url: gitUrlWithUsername, credentialsId: 'github-pat'
+                    git url: gitUrlWithToken, credentialsId: 'github-pat'
                 }
             }
         }
@@ -67,11 +67,11 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Write the GitHub PAT to a temporary file
-                    writeFile file: '.git-credentials', text: "https://${env.GIT_TOKEN}:x-oauth-basic"
+                    // Modify the GitHub repository URL to include the PAT
+                    def gitUrlWithToken = "https://${env.GIT_USERNAME}:${env.GIT_TOKEN}@github.com/sidwar76/Jenkins-confluence"
 
-                    // Set Git to use the credential helper and provide the path to the temporary file
-                    sh "git config --global credential.helper 'store --file ~/.git-credentials'"
+                    // Set the Git remote URL to the modified URL
+                    sh "git remote set-url origin ${gitUrlWithToken}"
 
                     // Commit and push changes to the GitHub repository
                     gitAdd = 'git add config.json'
