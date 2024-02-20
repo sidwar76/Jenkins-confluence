@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code from Git repository
-                    git credentialsId: 'github-pat', url: 'https://github.com/sidwar76/Jenkins-confluence'
+                    git url: 'https://github.com/sidwar76/Jenkins-confluence', credentialsId: 'github-pat'
                 }
             }
         }
@@ -63,11 +63,17 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
+                    // Write the GitHub PAT to a temporary file
+                    writeFile file: '.git-credentials', text: "https://${env.GIT_TOKEN}:x-oauth-basic"
+
+                    // Set Git to use the credential helper and provide the path to the temporary file
+                    sh "git config --global credential.helper 'store --file ~/.git-credentials'"
+
                     // Commit and push changes to the GitHub repository
                     gitAdd = 'git add config.json'
                     gitCommit = 'git commit -m "Update config.json"'
                     gitPush = 'git push origin master' // Modify 'master' to your branch name if needed
-                    sh "git config --global credential.helper 'store --file ~/.git-credentials' && echo ${env.GIT_TOKEN} | git credential approve && ${gitAdd} && ${gitCommit} && ${gitPush}"
+                    sh "${gitAdd} && ${gitCommit} && ${gitPush}"
                 }
             }
         }
