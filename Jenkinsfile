@@ -10,6 +10,7 @@ pipeline {
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
         GIT_TOKEN = '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' // Hardcoded PAT
+        GIT_USERNAME = 'sidwar76' // Your GitHub username
     }
 
     stages {
@@ -22,8 +23,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
+                    // Modify the GitHub repository URL to include the username
+                    def gitUrlWithUsername = "https://${env.GIT_USERNAME}@github.com/sidwar76/Jenkins-confluence"
+
                     // Checkout code from Git repository
-                    git url: 'https://github.com/sidwar76/Jenkins-confluence', credentialsId: 'github-pat'
+                    git url: gitUrlWithUsername, credentialsId: 'github-pat'
                 }
             }
         }
