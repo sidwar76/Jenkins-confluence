@@ -45,64 +45,70 @@ if response.status_code == 200:
 
     # Extract and print the table content if present
     if 'body' in page_info and 'storage' in page_info['body'] and 'value' in page_info['body']['storage']:
+        # Extracting table content from the page
         table_content = page_info['body']['storage']['value']
-
-        # Use BeautifulSoup to parse the HTML content
+        
+        # Using BeautifulSoup to parse the HTML content
         soup = BeautifulSoup(table_content, 'html.parser')
         
-        # Find the table
-        table = soup.find('table')
+        # Finding the starting point of the desired table
+        start_tag = soup.find('p', string=lambda x: x and 'PROD - Openshift Deployments' in x)
+        if start_tag:
+            # Finding the next table sibling of the starting point
+            table = start_tag.find_next_sibling('table')
+            if table:
+                # Initialize an empty dictionary to store application names and versions
+                app_dict = {}
 
-        # Initialize an empty dictionary to store application names and versions
-        app_dict = {}
+                # Find all rows in the table
+                rows = table.find_all('tr')
 
-        # Find all rows in the table
-        rows = table.find_all('tr')
+                # Extract header row to determine column indexes
+                header_row = rows[0]
+                headers = [header.get_text(strip=True) for header in header_row.find_all(['th', 'td'])]
 
-        # Extract header row to determine column indexes
-        header_row = rows[0]
-        headers = [header.get_text(strip=True) for header in header_row.find_all(['th', 'td'])]
+                # Find indexes of 'application name' and 'application version' columns
+                app_name_index = headers.index('application name')
+                app_version_index = headers.index('application version')
 
-        # Find indexes of 'application name' and 'application version' columns
-        app_name_index = headers.index('application name')
-        app_version_index = headers.index('application version')
+                # Loop through rows and extract application name and version
+                for row in rows[1:]:
+                    columns = row.find_all(['th', 'td'])
+                    app_name = columns[app_name_index].get_text(strip=True)
+                    app_version = columns[app_version_index].get_text(strip=True)
+                    app_dict[app_name] = app_version
 
-        # Loop through rows and extract application name and version
-        for row in rows[1:]:
-            columns = row.find_all(['th', 'td'])
-            app_name = columns[app_name_index].get_text(strip=True)
-            app_version = columns[app_version_index].get_text(strip=True)
-            app_dict[app_name] = app_version
+                # Print the dictionary
+                print("Dictionary from HTML table:")
+                print(app_dict)
 
-        # Print the dictionary
-        print("Dictionary from HTML table:")
-        print(app_dict)
+                # Initialize a dictionary to store changed values
+                changed_values = {}
 
-        # Initialize a dictionary to store changed values
-        changed_values = {}
+                # Read data from config.json
+                config_data = read_config('config.json')
 
-        # Read data from config.json
-        config_data = read_config('config.json')
+                # Compare data from HTML table with data from config.json
+                for key, value in app_dict.items():
+                    if key in config_data:
+                        if config_data[key] != value:
+                            changed_values[key] = value
 
-        # Compare data from HTML table with data from config.json
-        for key, value in app_dict.items():
-            if key in config_data:
-                if config_data[key] != value:
-                    changed_values[key] = value
+                # Print the changed values
+                print("Changed values:")
+                print(changed_values)
 
-        # Print the changed values
-        print("Changed values:")
-        print(changed_values)
+                # Write changed values to trigger.json
+                write_trigger_data(changed_values)
 
-        # Write changed values to trigger.json
-        write_trigger_data(changed_values)
-        
-        # Update config.json with changed values
-        update_config_data('config.json', changed_values)
-
+                # Update config.json with changed values
+                update_config_data('config.json', changed_values)
+            else:
+                print("No table found after 'PROD - Openshift Deployments'.")
+        else:
+            print("No starting point 'PROD - Openshift Deployments' found in the page.")
     else:
         print("No table content found on the page.")
-
 else:
     # Print an error message if the request was not successful
     print(f"Error: {response.status_code} - {response.text}")
