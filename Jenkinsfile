@@ -22,8 +22,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Checkout code from Git repository
-                    git 'https://github.com/sidwar76/Jenkins-confluence'
+                    // Checkout code from Git repository using SSH key authentication
+                    git url: 'git@github.com:sidwar76/Jenkins-confluence.git'
                 }
             }
         }
@@ -63,16 +63,10 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Commit and push changes to GitHub using provided credentials
-                    withCredentials([usernamePassword(credentialsId: 'b7a323b4-29ef-4de1-8a71-ed9869d05538', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh '''
-                        git config --global user.name "${GIT_USERNAME}"
-                        git config --global user.password "${GIT_PASSWORD}"
-                        git add ${FILE_TO_PUSH}
-                        git commit -m "Update config.json"
-                        git push --set-upstream origin master
-                        '''
-                    }
+                    // Commit and push changes to GitHub
+                    sh "git add ${FILE_TO_PUSH}"
+                    sh "git commit -m 'Update config.json'"
+                    sh "git push --set-upstream origin master"
                 }
             }
         }
