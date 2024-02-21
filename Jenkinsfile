@@ -64,12 +64,12 @@ pipeline {
             steps {
                 script {
                     // Commit and push changes to GitHub
-                    withCredentials([usernamePassword(credentialsId: 'b7a323b4-29ef-4de1-8a71-ed9869d05538', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'your-git-credentials-id', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git config --global user.email "you@example.com"'
                         sh 'git config --global user.name "Your Name"'
                         sh "git add ${FILE_TO_PUSH}"
                         sh 'git commit -m "Update config.json"'
-                        sh 'git push origin master'  // Modify 'master' to your branch name if needed
+                        sh 'git push --set-upstream origin master'  // Modify 'master' to your branch name if needed
                     }
                 }
             }
