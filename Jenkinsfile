@@ -63,10 +63,17 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Commit and push changes to GitHub
-                    sh "git add ${FILE_TO_PUSH}"
-                    sh "git commit -m 'Update config.json'"
-                    sh "git push --set-upstream origin master"
+                    // Check if there are any changes in the FILE_TO_PUSH
+                    def changes = sh(script: "git diff --exit-code ${FILE_TO_PUSH}", returnStatus: true)
+                    
+                    // If there are changes, stage and commit
+                    if (changes == 1) {
+                        sh "git add ${FILE_TO_PUSH}"
+                        sh "git commit -m 'Update ${FILE_TO_PUSH}'"
+                        sh "git push --set-upstream origin master"
+                    } else {
+                        echo "No changes detected in ${FILE_TO_PUSH}. Skipping commit."
+                    }
                 }
             }
         }
