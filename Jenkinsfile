@@ -10,6 +10,7 @@ pipeline {
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
         FILE_TO_PUSH = 'config.json'  // The file you want to push
+        REPO_URL = 'https://github.com/sidwar76/Jenkins-confluence' // Repository URL
     }
 
     stages {
@@ -22,8 +23,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
+                    // Configure Git to use the store credential helper globally
+                    sh 'git config --global credential.helper store'
+                    
                     // Checkout code from Git repository
-                    git 'https://github.com/sidwar76/Jenkins-confluence'
+                    git url: env.REPO_URL
                 }
             }
         }
