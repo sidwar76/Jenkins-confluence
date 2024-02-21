@@ -10,7 +10,7 @@ pipeline {
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
         FILE_TO_PUSH = 'config.json'  // The file you want to push
-        REPO_URL = 'https://github.com/sidwar76/Jenkins-confluence' // Repository URL
+        GITHUB_TOKEN = credentials('9e9656ce-d529-4f73-b93e-5d6e5c923048') // Credential ID of your GitHub token
     }
 
     stages {
@@ -23,11 +23,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Configure Git to use the store credential helper globally
-                    sh 'git config --global credential.helper store'
-                    
-                    // Checkout code from Git repository
-                    git url: env.REPO_URL
+                    // Checkout code from Git repository using the GitHub token
+                    git credentialsId: env.GITHUB_TOKEN, url: 'https://github.com/sidwar76/Jenkins-confluence'
                 }
             }
         }
@@ -67,14 +64,15 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Commit and push changes to GitHub
-                    withCredentials([usernamePassword(credentialsId: 'b7a323b4-29ef-4de1-8a71-ed9869d05538', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh 'git config --global user.email "you@example.com"'
-                        sh 'git config --global user.name "Your Name"'
-                        sh "git add ${FILE_TO_PUSH}"
-                        sh 'git commit -m "Update config.json"'
-                        sh 'git push --set-upstream origin master'  // Modify 'master' to your branch name if needed
-                    }
+                    // Configure Git to use the store credential helper globally
+                    sh 'git config --global credential.helper store'
+                    
+                    // Commit and push changes to GitHub using the GitHub token
+                    sh "git config --global user.email 'you@example.com'"
+                    sh "git config --global user.name 'Your Name'"
+                    sh "git add ${FILE_TO_PUSH}"
+                    sh "git commit -m 'Update config.json'"
+                    sh "git push --set-upstream origin master"
                 }
             }
         }
