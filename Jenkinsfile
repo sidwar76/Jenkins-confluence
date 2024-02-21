@@ -10,7 +10,6 @@ pipeline {
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
         FILE_TO_PUSH = 'config.json'  // The file you want to push
-        GITHUB_TOKEN = credentials('9e9656ce-d529-4f73-b93e-5d6e5c923048') // Credential ID of your GitHub token
     }
 
     stages {
@@ -23,8 +22,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Checkout code from Git repository using the GitHub token
-                    git credentialsId: env.GITHUB_TOKEN, url: 'https://github.com/sidwar76/Jenkins-confluence'
+                    // Checkout code from Git repository
+                    git 'https://github.com/sidwar76/Jenkins-confluence'
                 }
             }
         }
@@ -64,15 +63,16 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Configure Git to use the store credential helper globally
-                    sh 'git config --global credential.helper store'
-                    
-                    // Commit and push changes to GitHub using the GitHub token
-                    sh "git config --global user.email 'you@example.com'"
-                    sh "git config --global user.name 'Your Name'"
-                    sh "git add ${FILE_TO_PUSH}"
-                    sh "git commit -m 'Update config.json'"
-                    sh "git push --set-upstream origin master"
+                    // Commit and push changes to GitHub using provided credentials
+                    withCredentials([usernamePassword(credentialsId: 'b7a323b4-29ef-4de1-8a71-ed9869d05538', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh '''
+                        git config --global user.name "${GIT_USERNAME}"
+                        git config --global user.password "${GIT_PASSWORD}"
+                        git add ${FILE_TO_PUSH}
+                        git commit -m "Update config.json"
+                        git push --set-upstream origin master
+                        '''
+                    }
                 }
             }
         }
