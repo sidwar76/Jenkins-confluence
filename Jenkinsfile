@@ -10,9 +10,6 @@ pipeline {
         PYTHON_SCRIPT = 'test.py'
         JSON_FILE = 'trigger.json' // Use the trigger.json file to get the changed values
         FILE_TO_PUSH = 'config.json'  // The file you want to push
-        GIT_USERNAME = 'sidwar76'     // Your GitHub username
-        GIT_TOKEN = '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'  // Your GitHub Personal Access Token (PAT)
-        REPO_URL = "https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/sidwar76/Jenkins-confluence"  // Modify with your repository URL
     }
 
     stages {
@@ -26,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code from Git repository
-                    git url: REPO_URL, credentialsId: 'github-pat'
+                    git 'https://github.com/sidwar76/Jenkins-confluence'
                 }
             }
         }
@@ -35,7 +32,7 @@ pipeline {
             steps {
                 script {
                     // Execute Python script to get build data
-                    sh "${PYTHON_INTERPRETER} ${PYTHON_SCRIPT}"
+                    sh "${env.PYTHON_INTERPRETER} ${env.PYTHON_SCRIPT}"
                 }
             }
         }
@@ -44,7 +41,7 @@ pipeline {
             steps {
                 script {
                     // Read JSON file from workspace
-                    def jsonContent = readFile(file: JSON_FILE)
+                    def jsonContent = readFile(file: env.JSON_FILE)
                     
                     // Parse JSON string manually
                     def jsonData = readJSON text: jsonContent
@@ -58,7 +55,7 @@ pipeline {
                     }
                     
                     // Erase the content of the trigger.json file
-                    writeFile file: JSON_FILE, text: '{}'
+                    writeFile file: env.JSON_FILE, text: '{}'
                 }
             }
         }
@@ -66,24 +63,14 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    // Configure Git with the username and email
-                    sh 'git config --global user.name "Your Name"'
-                    sh 'git config --global user.email "youremail@example.com"'
-
-                    // Initialize Git repository
-                    sh 'git init'
-
-                    // Add the file to the repository
-                    sh "git add ${FILE_TO_PUSH}"
-
-                    // Commit the changes
-                    sh 'git commit -m "Update config.json"'
-
-                    // Set the remote repository URL
-                    sh "git remote add origin ${REPO_URL}"
-
-                    // Push the changes to GitHub
-                    sh 'git push -u origin master'
+                    // Commit and push changes to GitHub
+                    withCredentials([usernamePassword(credentialsId: 'b7a323b4-29ef-4de1-8a71-ed9869d05538', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh 'git config --global user.email "you@example.com"'
+                        sh 'git config --global user.name "Your Name"'
+                        sh "git add ${FILE_TO_PUSH}"
+                        sh 'git commit -m "Update config.json"'
+                        sh 'git push origin master'  // Modify 'master' to your branch name if needed
+                    }
                 }
             }
         }
