@@ -23,8 +23,8 @@ def write_trigger_data(data):
 
 # Replace these values with your Confluence site URL, page ID, and base64-encoded token
 confluence_url = "https://sharmasid2398.atlassian.net/wiki"
-page_id = "163997"
-base64_encoded_token = "c2hhcm1hc2lkMjM5OEBnbWFpbC5jb206QVRBVFQzeEZmR0YwaHdEbVBXTmFGT184WTJKYkNJajFYbDE2LTlIZUdaR21kdTQxRFVYNURmRGdZY1QxMW5GMUhOekpjUjh1bkRsRWlfMFh0R0ctZTZsd1JXWDZZR0xOckdSbHV2SWpCTFJySlVjdUJwX3VJMnM5VVhVX3oyN3VzSFBNS0RaOVZGVUtuYXpEMWtybUQzVlIxbHJmb3ExeXJSaDNKQ1hrMWJUYlhKSkRrUDh5dkJZPTY0QjA4NzUw"
+page_id = "163997" #Enter your page id here
+base64_encoded_token = "h5dkJZPTY0QjA4NzUw"
 
 # Construct the API endpoint URL
 api_url = f"{confluence_url}/rest/api/content/{page_id}?expand=body.storage"
